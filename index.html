@@ -1,0 +1,135 @@
+<title>mqtt-admin</title>
+
+<script src="bower_components/steal/steal.js" data-main="main"></script>
+
+<div id="container" style="display: none;">
+
+    <div id="tabs">
+        <ul>
+            <li><a href="#publish">Publish</a></li>
+            <li><a href="#subscribe">Subscribe</a></li>
+            <li><a href="#status">Status</a></li>
+        </ul>
+
+        <div id="status">
+            <input id="topic" type="text" placeholder=" ...type in a topic (wildcards + and # allowed) and press enter" class="ui-widget ui-widget-content ui-corner-all">
+            <table id="gridStatus"></table>
+            <div id="pagerStatus"></div>
+        </div>
+
+        <div id="publish">
+            <p>
+                <label class="publish" for="publishTopic">Topic</label><input class="ui-widget ui-widget-content ui-corner-all" type="text" id="publishTopic">
+            </p>
+            <p>
+                <label class="publish" for="publishPayload">Payload</label>
+                <textarea class="ui-widget ui-widget-content ui-corner-all" id="publishPayload" rows="1"></textarea>
+            </p>
+            <p style="margin-top: -10px"><!-- todo -->
+                <label for="publishPub"></label><button id="publishPub" type="button">Publish</button>
+                <button id="publishPubRetain" type="button">Publish (retain)</button>
+                <select id="publishQos">
+                    <option value="0">QOS 0</option>
+                    <option value="1">QOS 1</option>
+                    <option value="2">QOS 2</option>
+                </select>
+                <span id="jsonLint" style="display: none;"><span class='ui-icon ui-icon-check inline-icon' role='presentation'>Valid JSON</span>JSON</span>
+            </p>
+            <div id="tabsPublish">
+                <ul>
+                    <li><a href="#history">History</a></li>
+                  <!-- TODO <li><a href="#favorites">Favorites</a></li> -->
+                </ul>
+                <div id="history">
+                    <table id="gridHistory" class="publish-grid"></table>
+                    <div id="pagerHistory"></div>
+                </div>
+                <!-- TODO
+                <div id="favorites">
+                    <table id="gridFavorites" class="publish-grid"></table>
+                    <div id="pagerFavorites"></div>
+                </div> -->
+
+            </div>
+        </div>
+
+        <div id="subscribe">
+            <div id="tabsSubscribe">
+                <ul></ul>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="dialogInflux" style="display: none;">
+        <input id="influxQuery" disabled="disabled" type="text">
+        <table id="influxHistory"></table>
+    </div>
+
+    <div id="dialogSettings" title="Settings">
+        <h4>MQTT Broker</h4>
+        <p>Connection status: <span id="mqttStatus"></span></p>
+        <p style="display:none;">
+            <label for="protocol">protocol</label>
+            <select id="protocol">
+                <option value="ws">ws://</option>
+                <option value="wss">wss://</option>
+            </select>
+        </p>
+        <p>
+            <label for="host">host</label><input id="host" type="text">
+            <label for="port">port</label><input id="port" type="text">
+        </p>
+        <p style="display:none;">
+            <label for="user">user</label><input id="user" type="text">
+            <label for="password">password</label><input id="password" type="text">
+        </p>
+
+<!--
+        <h4>InfluxDB</h4>
+        <p>
+            <label for="influxEnable">enable</label><input type="checkbox" id="influxEnable">
+        </p>
+        <p>
+            <label for="influxHost">host</label><input id="influxHost" type="text">
+            <label for="influxPort">port</label><input id="influxPort" type="text">
+        </p>
+        -->
+    </div>
+
+    <div id="topicDetails" title="Topic Details"></div>
+
+    <div id="about">
+        <p>
+            See Readme and watchout for updates at <a href="https://github.com/hobbyquaker/mqtt-admin">https://github.com/hobbyquaker/mqtt-admin</a>
+        </p>
+
+        <p>Copyright (c) Sebastian Raff <a href="mailto:hq@ccu.io">hq@ccu.io</a> (<a
+                href="https://github.com/hobbyquaker">https://github.com/hobbyquaker</a>)
+        </p>
+
+        <p>
+            The MIT License (MIT)
+        </p>
+
+        <p>Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files (the "Software"), to deal
+            in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            copies of the Software, and to permit persons to whom the Software is
+            furnished to do so, subject to the following conditions:</p>
+
+        <p><b>The above copyright notice and this permission notice shall be included in
+            all copies or substantial portions of the Software.</b></p>
+
+        <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+            THE SOFTWARE.</p>
+        </p>
+    </div>
+
+</div>

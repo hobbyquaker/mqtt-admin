@@ -1,0 +1,18 @@
+{
+  "name": "mqtt-admin",
+  "version": "1.0.0-beta.2",
+  "main": "main",
+  "private": true,
+  "authors": [
+    "Sebastian Raff <hq@ccu.io> (https://github.com/hobbyquaker)"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "steal": "0.11.3",
+    "jquery": "1.11.3",
+    "jquery-ui": "1.11.4",
+    "free-jqgrid": "4.9.2",
+    "store-js": "1.3.17",
+    "mqttws": "1.0.0"
+  }
+}
