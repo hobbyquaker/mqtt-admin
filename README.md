@@ -4,7 +4,7 @@ MQTT Web Frontend: Publish, Subscribe and see Topic Status in a comfortable UI.
 
 ## getting started
 
-Download [the latest Release .zip file](), unzip, put it on a webserver and open index.html with a modern browser.
+Download [the mqtt-admin.zip file](https://github.com/hobbyquaker/mqtt-admin/releases/latest), unzip, put it on a webserver and open index.html with a modern browser.
 
 
 #### mqtt-smarthome
