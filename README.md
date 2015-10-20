@@ -4,8 +4,9 @@ MQTT Web Frontend: Publish, Subscribe and see Topic Status in a comfortable UI.
 
 ## getting started
 
-Download [the mqtt-admin.zip file](https://github.com/hobbyquaker/mqtt-admin/releases/latest), unzip, put it on a webserver and open index.html with a modern browser.
+Download [the mqtt-admin.zip file](https://github.com/hobbyquaker/mqtt-admin/releases/latest), unzip, put it on a webserver and open index.html with a modern browser. You can also give it a try by just visiting https://hobbyquaker.github.io/mqtt-admin
 
+I advice you not to connect to test.mosquitto.org. This server has too many retained topics, too big payload sizes, payloads with invalid utf and stuff like that - this will lead to very high load and memory usage of your browser.
 
 #### mqtt-smarthome
 
