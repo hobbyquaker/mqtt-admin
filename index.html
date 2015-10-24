@@ -67,23 +67,30 @@
     </div>
 
     <div id="dialogSettings" title="Settings">
-        <h4>MQTT Broker</h4>
-        <p>Connection status: <span id="mqttStatus"></span></p>
-        <p style="display:none;">
-            <label for="protocol">protocol</label>
-            <select id="protocol">
-                <option value="ws">ws://</option>
-                <option value="wss">wss://</option>
-            </select>
-        </p>
+        <h4>MQTT Broker Connection</h4>
         <p>
-            <label for="host">host</label><input id="host" type="text">
-            <label for="port">port</label><input id="port" type="text">
+            <span class="span-label">Status:</span> <span id="mqttStatus"></span><br>
+            <span class="span-label">ClientId:</span> <span id="mqttClientId"></span>
         </p>
-        <p style="display:none;">
-            <label for="user">user</label><input id="user" type="text">
-            <label for="password">password</label><input id="password" type="text">
-        </p>
+        <div class="left-50">
+            <label for="protocol">Protocol</label>
+            <select id="protocol">
+                <option value="ws" selected="selected">ws://</option>
+                <option value="wss">wss://</option>
+            </select><br>
+            <label for="host">Host</label><input class="ui-widget ui-widget-content  ui-corner-all" id="host" type="text"><br>
+            <label for="port">Port</label><input class="ui-widget ui-widget-content  ui-corner-all" id="port" type="text"><br>
+            <select id="server">
+                <option value="">choose Server</option>
+            </select>
+        </div>
+        <div class="right-50">
+            <label for="user">User</label><input class="ui-widget ui-widget-content  ui-corner-all" id="user" type="text"><br>
+            <label for="password">Password</label><input class="ui-widget ui-widget-content  ui-corner-all" id="password" type="text"><br>
+            <label for="clientId">ClientId</label><input class="ui-widget ui-widget-content  ui-corner-all" id="clientId" type="text"><br>
+            <label class="checkbox-label" for="random"><input type="checkbox" id="random">Random ClientId Suffix</label>
+        </div>
+        <div style="clear: both; height: 6px;"></div>
 
 <!--
         <h4>InfluxDB</h4>

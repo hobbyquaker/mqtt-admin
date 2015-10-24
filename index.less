@@ -247,27 +247,47 @@ ul.subscriptions {
 #dialogSettings {
   font-size: 14px;
 
+  input {
+    padding: 2px;
+  }
+
+  label, .span-label {
+    display: inline-block;
+    width: 90px !important;
+    padding-bottom: 10px;
+  }
+
+  .checkbox-label {
+    width: 200px !important;
+    padding-top: 8px;
+    padding-left: 92px;
+  }
+
+  .left-50 {
+    width: 50%;
+    float: left;
+  }
+
+  .right-50 {
+    width: 50%;
+    float: left;
+    padding-top: 8px;
+  }
   #mqttStatus {
     font-weight: bold;
   }
 
-
-
-  #host, #influxHost {
-    width: 160px;
+  #server + span, #protocol + span {
+    font-size: 11px;
+    top: 6px;
   }
 
-  #user, #password {
-    width: 160px;
+  #protocol + span {
+    left: -4px;
   }
 
-  #port, #influxPort {
-    width: 80px;
-  }
 
-  label {
-    width: 120px !important;
-  }
+
 
 }
 

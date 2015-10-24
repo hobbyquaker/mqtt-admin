@@ -24,6 +24,17 @@ config.mqttHost = config.mqttHost || '';
 config.mqttPort = config.mqttPort || '';
 config.maxPayloadSize = config.maxPayloadSize || 1024;
 
+if (!config.server) {
+    config.server = [];
+}
+
+if (!config.clientId) {
+    config.clientId = 'mqtt-admin';
+}
+
+if (typeof config.clientIdSuffix === 'undefined') {
+    config.clientIdSuffix = true;
+}
 
 
 /*******************************************************************************
@@ -91,6 +102,7 @@ function getCompletions(input) {
             if (pt.match(new RegExp(search, 'i'))) res.push(pt);
         });
     }
+    res.sort();
     return res;
 }
 
@@ -108,7 +120,12 @@ var $influxHost =           $('#influxHost');
 var $influxPort =           $('#influxPort');
 var $mqttStatus =           $('#mqttStatus');
 var $dialogAbout =          $('#about');
-
+var $server =               $('#server');
+var $protocol =             $('#protocol');
+var $random =               $('#random');
+var $clientId =             $('#clientId');
+var $user =                 $('#user');
+var $password =             $('#password');
 
 $dialogTopicDetails.dialog({
     autoOpen: false,
@@ -124,13 +141,53 @@ $dialogAbout.dialog({
     height: 400
 });
 
+for (var i = 0; i < config.server.length; i++) {
+    $server.append('<option value="' + config.server[i] + '">' + config.server[i] + '</option>');
+}
+$server.append('<option value="ws://broker.hivemq.com:8000">ws://broker.hivemq.com</option>');
+$server.append('<option value="ws://test.mosca.io:80">ws://test.mosca.io</option>');
+$server.append('<option value="ws://test.mosquitto.org:8080">ws://test.mosquitto.org</option>');
+$server.append('<option value="wss://test.mosquitto.org:8081">wss://test.mosquitto.org</option>');
+
+
+
+$server.selectmenu({
+    width: 280,
+    open: function() {
+        $('.ui-selectmenu-open').zIndex($dialogSettings.zIndex()+1);
+    },
+    change: function () {
+        var $this = $(this);
+        var tmp0 = $this.val().split('://');
+        var tmp = tmp0[1].split(':');
+        $protocol.val(tmp0[0]).selectmenu('refresh');
+        $host.val(tmp[0]);
+        $port.val(tmp[1]);
+        $server.val('');
+        $server.selectmenu('refresh');
+    }
+});
+
+$protocol.selectmenu({
+    width: 96,
+    open: function() {
+        $('.ui-selectmenu-open').zIndex($dialogSettings.zIndex()+1);
+    }
+});
 
 $dialogSettings.dialog({
     width: 640,
     autoOpen: false,
     open: function () {
+        $server.val('');
+        console.log('open settings protocol', config.protocol);
+        $protocol.val(config.protocol || 'ws').selectmenu('refresh');
         $host.val(config.mqttHost);
         $port.val(config.mqttPort);
+        $user.val(config.user);
+        $password.val(config.password);
+        config.clientIdSuffix ? $random.attr('checked', true) : $random.removeAttr('checked');
+        $clientId.val(config.clientId);
     },
     close: function () {
         $topic.focus();
@@ -142,9 +199,22 @@ $dialogSettings.dialog({
                 config.influxHost = $influxHost.val();
                 config.influxPort = parseInt($influxPort.val());
 
-                if (config.mqttHost !== $host.val() || config.mqttPort !== parseInt($port.val())) {
+                if (
+                    config.clientIdSuffix   !== $random.is(':checked') ||
+                    config.clientId         !== $clientId.val() ||
+                    config.user             !== $user.val() ||
+                    config.password         !== $password.val() ||
+                    config.mqttHost         !== $host.val() ||
+                    config.mqttPort         !== parseInt($port.val(), 10) ||
+                    config.protocol         !== ($protocol.val())
+                ) {
                     config.mqttHost = $host.val();
-                    config.mqttPort = parseInt($port.val());
+                    config.mqttPort = parseInt($port.val(), 10);
+                    config.password = $password.val();
+                    config.user = $user.val();
+                    config.clientId = $clientId.val();
+                    config.protocol = $protocol.val();
+                    config.clientIdSuffix = $random.is(':checked');
                     storage.set('mqtt-admin', config);
                     mqttDisconnect();
                     window.location.reload();
@@ -426,16 +496,17 @@ var $publishPayload =   $('#publishPayload');
 var $publishPub =       $('#publishPub');
 var $publishTopic =     $('#publishTopic');
 var $publishQos =       $('#publishQos');
+var $publishPubRetain =  $('#publishPubRetain');
 
 $publishQos.selectmenu({
     width: 90
 });
 
-$publishPub.button().css('width', '130px').click(function () {
+$publishPub.button({disabled: true}).css('width', '130px').click(function () {
     mqttPublish($publishTopic.val(), $publishPayload.val(), {qos: parseInt($publishQos.val(), 10), retain: false});
 });
 
-$('#publishPubRetain').button().click(function () {
+$publishPubRetain.button({disabled: true}).click(function () {
     mqttPublish($publishTopic.val(), $publishPayload.val(), {qos: parseInt($publishQos.val(), 10), retain: true});
 });
 
@@ -460,6 +531,13 @@ $publishTopic.autocomplete({
 });
 
 $publishTopic.on('keyup', function (e) {
+    if ($publishTopic.val() !== '') {
+        $publishPub.button('enable');
+        $publishPubRetain.button('enable');
+    } else {
+        $publishPub.button('disable');
+        $publishPubRetain.button('disable');
+    }
     if (e && e.which === 191) $publishTopic.val($publishTopic.val().replace(/^([^/]+)\/\//, '$1/set/'));
 });
 
@@ -524,11 +602,15 @@ $gridHistory.jqGrid({
     ondblClickRow: function (rowid) {
         $publishTopic.val(config.publishHistory[rowid-1].topic);
         $publishPayload.val(config.publishHistory[rowid-1].payload);
+        $publishPub.button('enable');
+        $publishPubRetain.button('enable');
         $publishPub.trigger('click');
     },
     onSelectRow: function (rowid) {
         $publishTopic.val(config.publishHistory[rowid-1].topic);
         $publishPayload.val(config.publishHistory[rowid-1].payload);
+        $publishPub.button('enable');
+        $publishPubRetain.button('enable');
     },
     gridComplete: function () {
         //resizeGrids();
@@ -881,6 +963,7 @@ function addTab(id, label) {
     $tabsSubscribe.find('div[id="' + id + '"] input[type="text"]').change(function () {
         var $this = $(this);
         var topic = $this.val();
+        if (!topic) return;
         $this.val('');
         var color = $this.parent().find('.subscribe-color').val();
         if (subscriptions[id].topics.indexOf(topic) === -1) {
@@ -892,6 +975,18 @@ function addTab(id, label) {
                 config.tabsSubscribe[id].subscriptions.push(topic);
             }
             config.tabsSubscribe[id].colors[config.tabsSubscribe[id].subscriptions.indexOf(topic)] = color;
+
+
+            $buttons.find('input[id$="_pause"]').removeAttr('checked');
+            $buttons.find('input[id$="_stop"]').removeAttr('checked');
+            $buttons.find('input[id$="_play"]').attr('checked', true);
+            $buttons.buttonset('refresh');
+            subscriptions[id].mode = 'play';
+
+            if (pauseCache[id]) {
+                $grid.jqGrid('addRowData', 'id', pauseCache[id], 'first');
+                pauseCache[id] = [];
+            }
 
             //console.log(config);
             storage.set('mqtt-admin', config);
@@ -1080,16 +1175,24 @@ var receiveRetained = true;
 var receiveRetainedTimeout;
 
 $mqttStatus.html('<span style="color:red">disconnected</span></span>');
-var url = (config.mqttSsl ? 'wss://' : 'ws://') + config.mqttHost + ':' + config.mqttPort;
-console.log('trying to connect to ' + url);
 
 var client;
 
 if (config.mqttHost && config.mqttPort) {
-    $mqttStatus.html('<span style="color:red">disconnected</span> <span style="color:orange">trying to connect to ws://' + config.mqttHost + ':' + config.mqttPort + '</span>');
-    client = new Paho.MQTT.Client(config.mqttHost, config.mqttPort, 'mqtt-admin_' + Math.floor(Math.random() * 0xffff).toString(16));
+    console.log('url protocol', config.protocol);
+    var url = config.protocol + '://' + config.mqttHost + ':' + config.mqttPort;
+    console.log('trying to connect to ' + url);
 
-//client.on('close', function (e) {
+    if (config.server.indexOf(url) === -1) config.server.push(url);
+    storage.set('mqtt-admin', config);
+
+    var clientId = config.clientId + (config.clientIdSuffix ? '_' + ('00000000' + Math.floor(Math.random() * 0xffffffff).toString(16)).slice(-8) : '');
+    $('#mqttClientId').html(clientId);
+
+    $mqttStatus.html('<span style="color:red">disconnected</span> <span style="color:orange">trying to connect to ' + config.protocol + '://' + config.mqttHost + ':' + config.mqttPort + '</span>');
+    client = new Paho.MQTT.Client(config.mqttHost, config.mqttPort, '/mqtt', clientId);
+
+
     client.onConnectionLost = function (e) {
         mqttConnected = false;
         console.log('mqtt close', e);
@@ -1224,12 +1327,12 @@ if (config.mqttHost && config.mqttPort) {
 }
 
 function mqttConnect() {
-    client.connect({
+    var connectOptions = {
         onSuccess: function () {
             console.log('mqtt connected');
             mqttConnected = true;
 
-            var url = 'ws://' + config.mqttHost + ':'+ config.mqttPort;
+            var url = config.protocol + '://' + config.mqttHost + ':'+ config.mqttPort;
             $mqttStatus.html('<span style="color:green">connected to ' + url + '</span>');
             $dialogSettings.dialog('close');
 
@@ -1239,7 +1342,14 @@ function mqttConnect() {
             if ($topic.val() !== '') $load_gridStatus.show();
             mqttRetainTimeout();
         }
-    });
+    };
+    console.log('protocol:', config.protocol);
+    if (config.protocol === 'wss') connectOptions.useSSL = true;
+    if (config.user) connectOptions.userName = config.user;
+    if (config.password) connectOptions.password = config.password;
+
+    client.connect(connectOptions);
+
 }
 
 function mqttWildcards(s) {
