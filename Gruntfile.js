@@ -1,8 +1,7 @@
-var bower = require('./bower.json');
 
 module.exports = function (grunt) {
+    grunt.config.data.bower = require('./bower.json');
     grunt.initConfig({
-        bower: grunt.file.readJSON('bower.json'),
         "steal-build": {
             bundle: {
                 options: {
@@ -45,19 +44,15 @@ module.exports = function (grunt) {
                 }
             }
         },
-        compress: {
-            release: {
-                options: {
-                    archive: function () {
-                        return './releases/mqtt-admin_' + grunt.config.data.bower.version + '.zip';
-                    }
+        zip: {
+            'release': {
+                router: function (filepath) {
+                    return filepath.replace(/^tmp/, 'mqtt-admin');
                 },
-                files: [
-                    {cwd: 'tmp', src: ['**'], dest: 'mqtt-admin/'}
-                ]
+                src: ['tmp/**'],
+                dest: 'releases/mqtt-admin_' + grunt.config.data.bower.version + '.zip'
             }
         },
-
         bump: {
             options: {
                 files: ['bower.json'],
@@ -75,22 +70,22 @@ module.exports = function (grunt) {
                 regExp: false,
                 prereleaseName: 'beta'
             }
-        },
+        }
     });
 
     grunt.loadNpmTasks("steal-tools");
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-string-replace');
-    grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-zip');
 
     grunt.registerTask("build", ["steal-build", "clean", "copy", "string-replace"]);
-    grunt.registerTask("release prerelease", ["bump:prerelease", "build", "compress"]);
-    grunt.registerTask("release patch", ["bump:patch", "build", "compress"]);
-    grunt.registerTask("release minor", ["bump:minor", "build", "compress"]);
-    grunt.registerTask("release major", ["bump:major", "build", "compress"]);
-    grunt.registerTask("release premajor", ["bump:premajor", "build", "compress"]);
+    grunt.registerTask("release prerelease", ["bump:prerelease", "build", "zip"]);
+    grunt.registerTask("release patch", ["bump:patch", "build", "zip"]);
+    grunt.registerTask("release minor", ["bump:minor", "build", "zip"]);
+    grunt.registerTask("release major", ["bump:major", "build", "zip"]);
+    grunt.registerTask("release premajor", ["bump:premajor", "build", "zip"]);
 
 
 };
