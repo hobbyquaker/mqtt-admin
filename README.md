@@ -4,13 +4,45 @@ MQTT Web Frontend: Publish, Subscribe and see Topic Status in a comfortable UI.
 
 ## getting started
 
-Download [the mqtt-admin.zip file](https://github.com/hobbyquaker/mqtt-admin/releases/latest), unzip, put it on a webserver and open index.html with a modern browser. You can also give it a try by just visiting https://hobbyquaker.github.io/mqtt-admin
+Download [mqtt-admin.zip](https://github.com/hobbyquaker/mqtt-admin/releases/latest), unzip, put it on a webserver and 
+open index.html with a modern browser. You can also give it a try by just visiting https://hobbyquaker.github.io/mqtt-admin
 
-I advice you not to connect to test.mosquitto.org. This server has too many retained topics, too big payload sizes, payloads with invalid utf and stuff like that - this will lead to very high load and memory usage of your browser.
+### Usage
+
+mqtt-admin offers 3 tabs, Publish, Subscribe and Status, these are described in more detail below. Topic input fields offer
+autocompletion, mqtt-admin subscribes # to get all availabe topics to be able to offer this. Broker settings, the UI state, 
+subscriptions and the publish history are persisted in your browser local storage.
+
+#### Publish
+
+Just enter a topic and a payload and click the publish button. The payload input field can be resized vertically and has
+a built in JSON linter - a checkmark below the input field will indicate valid JSON.
+
+Every publish is saved in the history table, you can refill the input fields by clicking in history, a double click
+immediatly publishes again (not retained).
+
+#### Subscribe
+
+It's possible to open a unlimited number of subscriptions tabs that can contain a unlimited number of single subscriptions.
+You can color your subscriptions, but you have to select a color before you enter a topic and press enter. 
+Subscription tabs can be renamed by double-clicking on the name.
+Every subscription tab has Play/Pause/Stop buttons, pause will cache incoming messages and delay insertion into the DOM
+until you activate play again. The trash button just clears the table.
+
+#### Status
+
+The status table shows the last-received payload of the listed topics, it's meant to keep an eye on e.g. _current_ sensor
+data without being interested in previous data. 
+
+#### Warnings
+
+* This tool is meant to be used with keyboard and mouse, I do not plan any efforts on optimizing it for touch devices.
+* Connecting to test.mosquitto.org will stress your browser (Many retained topics, big payloads, ...).
 
 #### mqtt-smarthome
 
-mqtt-admin contains some syntactic sugar for [mqtt-smarthome](https://github.com/mqtt-smarthome/) users (special columns in status tab, auto-completion of // to /status/ and /set/)
+mqtt-admin contains some syntactic sugar for [mqtt-smarthome](https://github.com/mqtt-smarthome/) users (special columns
+in status tab, auto-completion of // to /status/ and /set/)
 
 
 ## contributing
