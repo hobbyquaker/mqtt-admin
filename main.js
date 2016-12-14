@@ -22,19 +22,25 @@ var config = storage.get('mqtt-admin') || {};
 
 config.mqttHost = config.mqttHost || '';
 config.mqttPort = config.mqttPort || '';
+config.influxPort = config.influxPort || 8086;
+config.clientId = config.clientId || 'mqtt-admin';
 config.maxPayloadSize = config.maxPayloadSize || 1024;
-
-if (!config.server) {
-    config.server = [];
-}
-
-if (!config.clientId) {
-    config.clientId = 'mqtt-admin';
-}
+config.mqttshTrim = config.mqttshTrim || false;
 
 if (typeof config.clientIdSuffix === 'undefined') {
     config.clientIdSuffix = true;
 }
+
+if (!config.server) {
+    config.server = [
+        'ws://broker.hivemq.com:8000',
+        'ws://test.mosca.io:80',
+        'ws://test.mosquitto.org:8080',
+        'wss://test.mosquitto.org:8081',
+    ];
+}
+
+
 
 
 /*******************************************************************************
@@ -116,8 +122,6 @@ var $dialogInflux =         $('#dialogInflux');
 var $dialogSettings =       $('#dialogSettings');
 var $host =                 $('#host');
 var $port =                 $('#port');
-var $influxHost =           $('#influxHost');
-var $influxPort =           $('#influxPort');
 var $mqttStatus =           $('#mqttStatus');
 var $dialogAbout =          $('#about');
 var $server =               $('#server');
@@ -126,11 +130,23 @@ var $random =               $('#random');
 var $clientId =             $('#clientId');
 var $user =                 $('#user');
 var $password =             $('#password');
+var $tabsSettings =         $('#tabsSettings');
+var $influxHost =           $('#influxHost');
+var $influxPort =           $('#influxPort');
+var $influxDatabase =       $('#influxDatabase');
+var $influxEnable =         $('#influxEnable');
+
+var $tabsDetails =          $('#tabsDetails');
+var $gridInflux =           $('#gridInflux');
+var $influxQuery =          $('#influxQuery');
+
+var $mqttshTrim =           $('#mqttshTrim');
+var $mqttshAutocomplete =   $('#mqttshAutocomplete');
 
 $dialogTopicDetails.dialog({
     autoOpen: false,
-    width: 640,
-    height: 400
+    width: 720,
+    height: 500
 });
 
 $dialogAbout.dialog({
@@ -144,10 +160,7 @@ $dialogAbout.dialog({
 for (var i = 0; i < config.server.length; i++) {
     $server.append('<option value="' + config.server[i] + '">' + config.server[i] + '</option>');
 }
-$server.append('<option value="ws://broker.hivemq.com:8000">ws://broker.hivemq.com</option>');
-$server.append('<option value="ws://test.mosca.io:80">ws://test.mosca.io</option>');
-$server.append('<option value="ws://test.mosquitto.org:8080">ws://test.mosquitto.org</option>');
-$server.append('<option value="wss://test.mosquitto.org:8081">wss://test.mosquitto.org</option>');
+
 
 
 
@@ -175,12 +188,15 @@ $protocol.selectmenu({
     }
 });
 
+
+
 $dialogSettings.dialog({
     width: 640,
+    height: 450,
     autoOpen: false,
     open: function () {
+        $tabsSettings.tabs('option', 'active', 0);
         $server.val('');
-        console.log('open settings protocol', config.protocol);
         $protocol.val(config.protocol || 'ws').selectmenu('refresh');
         $host.val(config.mqttHost);
         $port.val(config.mqttPort);
@@ -188,6 +204,13 @@ $dialogSettings.dialog({
         $password.val(config.password);
         config.clientIdSuffix ? $random.attr('checked', true) : $random.removeAttr('checked');
         $clientId.val(config.clientId);
+        config.influxEnable ? $influxEnable.attr('checked', true) : $influxEnable.removeAttr('checked');
+        $influxHost.val(config.influxHost);
+        $influxPort.val(config.influxPort);
+        $influxDatabase.val(config.influxDatabase);
+        config.mqttshTrim ? $mqttshTrim.attr('checked', true) : $mqttshTrim.removeAttr('checked');
+        config.mqttshAutocomplete ? $mqttshAutocomplete.attr('checked', true) : $mqttshAutocomplete.removeAttr('checked');
+
     },
     close: function () {
         $topic.focus();
@@ -200,21 +223,34 @@ $dialogSettings.dialog({
                 config.influxPort = parseInt($influxPort.val());
 
                 if (
-                    config.clientIdSuffix   !== $random.is(':checked') ||
-                    config.clientId         !== $clientId.val() ||
-                    config.user             !== $user.val() ||
-                    config.password         !== $password.val() ||
-                    config.mqttHost         !== $host.val() ||
-                    config.mqttPort         !== parseInt($port.val(), 10) ||
-                    config.protocol         !== ($protocol.val())
+                    config.influxEnable         !== $influxEnable.is(':checked') ||
+                    config.influxHost           !== $influxHost.val() ||
+                    config.influxPort           !== $influxPort.val() ||
+                    config.influxDatabase       !== $influxDatabase.val() ||
+                    config.clientId             !== $clientId.val() ||
+                    config.user                 !== $user.val() ||
+                    config.password             !== $password.val() ||
+                    config.mqttHost             !== $host.val() ||
+                    config.mqttPort             !== parseInt($port.val(), 10) ||
+                    config.protocol             !== ($protocol.val()) ||
+                    config.clientIdSuffix       !== $random.is(':checked') ||
+                    config.mqttshTrim           !== $mqttshTrim.is(':checked') ||
+                    config.mqttshAutocomplete   !== $mqttshAutocomplete.is(':checked')
+
                 ) {
+                    config.influxEnable = $influxEnable.is(':checked');
+                    config.influxHost = $influxHost.val();
+                    config.influxPort = $influxPort.val();
+                    config.influxDatabase = $influxDatabase.val();
+                    config.clientId = $clientId.val();
+                    config.user = $user.val();
+                    config.password = $password.val();
                     config.mqttHost = $host.val();
                     config.mqttPort = parseInt($port.val(), 10);
-                    config.password = $password.val();
-                    config.user = $user.val();
-                    config.clientId = $clientId.val();
                     config.protocol = $protocol.val();
                     config.clientIdSuffix = $random.is(':checked');
+                    config.mqttshTrim = $mqttshTrim.is(':checked');
+                    config.mqttshAutocomplete = $mqttshAutocomplete.is(':checked');
                     storage.set('mqtt-admin', config);
                     mqttDisconnect();
                     window.location.reload();
@@ -228,6 +264,25 @@ $dialogSettings.dialog({
 
     ],
     modal: true
+});
+
+$tabsSettings.tabs();
+$tabsDetails.tabs();
+$gridInflux.jqGrid({
+    datatype: "local",
+    colNames: ['id', 'time', 'value'],
+    colModel: [
+        {name: 'id', index: 'id'},
+        {name: 'time', index: 'time'},
+        {name: 'value', index: 'value'}
+    ],
+    rowNum: 1000,
+    rowList:[25, 100, 1000, 100000],
+    width: 650,
+    height: 320,
+    viewrecords: true,
+    caption: "InfluxDB"
+
 });
 
 
@@ -304,12 +359,14 @@ var searchPatternRegExp;
 
 function topicRefresh(e) {
 
+    console.log('!', searchPattern, $topic.val(), e);
+
+
     searchPattern = $topic.val();
 
-    if (e && e.which === 191) searchPattern = searchPattern.replace(/^([^/]+)\/\//, '$1/status/');
+    if (config.mqttshAutocomplete && e && (e.keyCode === 55 || e.which === 191)) searchPattern = searchPattern.replace(/^([^/]+)\/\//, '$1/status/');
 
     if (searchPattern !== $topic.val()) {
-        //console.log('!', searchPattern, $topic.val());
         $topic.val(searchPattern);
     }
 
@@ -349,7 +406,7 @@ $topic.autocomplete({
 var $gridStatus =       $('#gridStatus');
 var $load_gridStatus =  $('#load_gridStatus');
 
-var colNamesStatus = ['id', 'topic', 'val', 'ts', 'lc', 'misc properties', 'payload', 'retained'];
+var colNamesStatus = ['id', 'topic', 'val', 'ts', 'lc', 'misc properties', 'payload', 'retained',]; // 'tools'];
 var colModelStatus = [
     {name: 'id', index: 'id', hidden: true, autoResizable: true},
     {name: 'topic', index: 'topic', width: 360, autoResizable: true},
@@ -358,7 +415,8 @@ var colModelStatus = [
     {name: 'lc', index: 'lc', width: 140, fixed: true, align: 'right', hidden: true, autoResizable: true},
     {name: 'misc', index: 'misc', width: 360, hidden: true, autoResizable: true},
     {name: 'payload', index: 'payload', width: 640, autoResizable: true},
-    {name: 'retained', index: 'retained', width: 30, hidden: true, fixed: true, formatter: formatBool, autoResizable: true}
+    {name: 'retained', index: 'retained', width: 30, hidden: false, fixed: true, formatter: formatBool, autoResizable: true}
+    //{name: 'tools', index: 'tools', width: 60, hidden: true, fixed: true, formatter: formatBool, autoResizable: true, sortable: false}
 ];
 
 var gridStatusState = restoreGridState('gridStatus', colModelStatus);
@@ -381,7 +439,7 @@ $gridStatus.jqGrid({
     sortname: isColState ? gridStatusState.sortname : 'id',
     sortorder: isColState ? gridStatusState.sortorder : 'desc',
     ondblClickRow: function (rowid, iRow, iCol, e) {
-        //$dialogTopicDetails.dialog('open');
+        $dialogTopicDetails.dialog('open');
     },
     beforeSelectRow: function(rowid, e) {
         return false;
@@ -440,7 +498,7 @@ $gridStatus
 function buildRow(topic) {
     var row = {
         id: data[topic].tid,
-        topic: topic.replace(/^([^\/]+)\/status\/(.+)/, '$1//$2'),
+        topic: config.mqttshTrim ? topic.replace(/^([^\/]+)\/status\/(.+)/, '$1//$2') : topic,
         payload: escapePayload(data[topic].payload),
         val: $('<div/>').text(data[topic].val).html(),
         retained: data[topic].retained,
@@ -538,7 +596,7 @@ $publishTopic.on('keyup', function (e) {
         $publishPub.button('disable');
         $publishPubRetain.button('disable');
     }
-    if (e && e.which === 191) $publishTopic.val($publishTopic.val().replace(/^([^/]+)\/\//, '$1/set/'));
+    if (config.mqttshAutocomplete && e && (e.keyCode === 55 || e.which === 191)) $publishTopic.val($publishTopic.val().replace(/^([^/]+)\/\//, '$1/set/'));
 });
 
 $publishPayload.on('keyup', function () {
@@ -742,7 +800,7 @@ $.widget( "custom.colorselectmenu", $.ui.selectmenu, {
 
 function buildSubscribeRow(topic, payload, color) {
     var row = {
-        topic: topic.replace(/^([^\/]+)\/status\/(.+)/, '$1//$2'),
+        topic: config.mqttshTrim ? topic.replace(/^([^\/]+)\/status\/(.+)/, '$1//$2') : topic,
         payload: escapePayload(payload),
         ts: '<span class="fill-cell palette-' + color + '">' + dateFormat(new Date()) + '</span>',
     };
@@ -1009,7 +1067,7 @@ function addTab(id, label) {
 
     }).on('keyup', function (e) {
         var $this = $(this);
-        if (e && e.which === 191) $this.val($this.val().replace(/^([^/]+)\/\//, '$1/status/'));
+        if (config.mqttshAutocomplete && e && (e.keyCode === 55 || e.which === 191)) $this.val($this.val().replace(/^([^/]+)\/\//, '$1/status/'));
     });
 
     // restore subscriptions
@@ -1183,7 +1241,7 @@ if (config.mqttHost && config.mqttPort) {
     var url = config.protocol + '://' + config.mqttHost + ':' + config.mqttPort;
     console.log('trying to connect to ' + url);
 
-    if (config.server.indexOf(url) === -1) config.server.push(url);
+    if (config.server.indexOf(url) === -1) config.server.unshift(url);
     storage.set('mqtt-admin', config);
 
     var clientId = config.clientId + (config.clientIdSuffix ? '_' + ('00000000' + Math.floor(Math.random() * 0xffffffff).toString(16)).slice(-8) : '');
@@ -1338,6 +1396,9 @@ function mqttConnect() {
 
             console.log('mqtt subscribe #');
             client.subscribe('#');
+
+            console.log('mqtt subscribe $SYS/#');
+            client.subscribe('$SYS/#');
 
             if ($topic.val() !== '') $load_gridStatus.show();
             mqttRetainTimeout();

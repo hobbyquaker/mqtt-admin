@@ -61,50 +61,81 @@
 
     </div>
 
-    <div id="dialogInflux" style="display: none;">
-        <input id="influxQuery" disabled="disabled" type="text">
-        <table id="influxHistory"></table>
-    </div>
 
     <div id="dialogSettings" title="Settings">
-        <h4>MQTT Broker Connection</h4>
-        <p>
-            <span class="span-label">Status:</span> <span id="mqttStatus"></span><br>
-            <span class="span-label">ClientId:</span> <span id="mqttClientId"></span>
-        </p>
-        <div class="left-50">
-            <label for="protocol">Protocol</label>
-            <select id="protocol">
-                <option value="ws" selected="selected">ws://</option>
-                <option value="wss">wss://</option>
-            </select><br>
-            <label for="host">Host</label><input class="ui-widget ui-widget-content  ui-corner-all" id="host" type="text"><br>
-            <label for="port">Port</label><input class="ui-widget ui-widget-content  ui-corner-all" id="port" type="text"><br>
-            <select id="server">
-                <option value="">choose Server</option>
-            </select>
-        </div>
-        <div class="right-50">
-            <label for="user">User</label><input class="ui-widget ui-widget-content  ui-corner-all" id="user" type="text"><br>
-            <label for="password">Password</label><input class="ui-widget ui-widget-content  ui-corner-all" id="password" type="text"><br>
-            <label for="clientId">ClientId</label><input class="ui-widget ui-widget-content  ui-corner-all" id="clientId" type="text"><br>
-            <label class="checkbox-label" for="random"><input type="checkbox" id="random">Random ClientId Suffix</label>
-        </div>
-        <div style="clear: both; height: 6px;"></div>
+        <div id="tabsSettings">
+            <ul>
+                <li><a href="#brokerSettings">MQTT Broker</a></li>
+                <!--<li><a href="#influxSettings">InfluxDB</a></li>-->
+                <li><a href="#mqttshSettings">mqtt-smarthome</a></li>
+            </ul>
 
-<!--
-        <h4>InfluxDB</h4>
-        <p>
-            <label for="influxEnable">enable</label><input type="checkbox" id="influxEnable">
-        </p>
-        <p>
-            <label for="influxHost">host</label><input id="influxHost" type="text">
-            <label for="influxPort">port</label><input id="influxPort" type="text">
-        </p>
-        -->
+            <div id="brokerSettings">
+                <p>
+                    <span class="span-label">Status:</span> <span id="mqttStatus"></span><br>
+                    <span class="span-label">ClientId:</span> <span id="mqttClientId"></span>
+                </p>
+                <div class="left-50">
+                    <label for="protocol">Protocol</label>
+                    <select id="protocol">
+                        <option value="ws" selected="selected">ws://</option>
+                        <option value="wss">wss://</option>
+                    </select><br>
+                    <label for="host">Host</label><input class="ui-widget ui-widget-content  ui-corner-all" id="host" type="text"><br>
+                    <label for="port">Port</label><input class="ui-widget ui-widget-content  ui-corner-all" id="port" type="text"><br>
+                    <select id="server">
+                        <option value="">choose Server</option>
+                    </select>
+                </div>
+                <div class="right-50">
+                    <label for="user">User</label><input class="ui-widget ui-widget-content  ui-corner-all" id="user" type="text"><br>
+                    <label for="password">Password</label><input class="ui-widget ui-widget-content  ui-corner-all" id="password" type="text"><br>
+                    <label for="clientId">ClientId</label><input class="ui-widget ui-widget-content  ui-corner-all" id="clientId" type="text"><br>
+                    <label class="checkbox-label" for="random"><input type="checkbox" id="random">Random ClientId Suffix</label>
+                </div>
+                <div style="clear: both; height: 6px;"></div>
+            </div>
+
+            <!--<div id="influxSettings">
+                <p>
+                    <label for="influxEnable">Enable</label><input type="checkbox" id="influxEnable">
+                </p>
+                <p>
+                    <label for="influxHost">Host</label><input id="influxHost" class="ui-widget ui-widget-content ui-corner-all" type="text"><br>
+                    <label for="influxPort">Port</label><input id="influxPort" class="ui-widget ui-widget-content ui-corner-all" type="text"><br>
+                    <label for="influxDatabase">Database</label><input class="ui-widget ui-widget-content ui-corner-all" id="influxDatabase" type="text"><br>
+                </p>
+            </div>-->
+
+            <div id="mqttshSettings">
+                <p>
+                    <label class="large" for="mqttshTrim">Trim <code>+/status/#</code> topics to <code>+//#</code></label><input type="checkbox" id="mqttshTrim">
+                </p>
+                <p>
+                    <label class="large" for="mqttshAutocomplete">Autocomplete <code>+//</code> topics to <code>+/status/</code> or <code>+/set/</code></label><input type="checkbox" id="mqttshAutocomplete">
+                </p>
+            </div>
+        </div>
     </div>
 
-    <div id="topicDetails" title="Topic Details"></div>
+    <div id="topicDetails" title="Topic Details">
+        <div id="tabsDetails">
+            <ul>
+                <li><a href="#mqttDetails">MQTT</a></li>
+                <li><a href="#influxDetails">InfluxDB</a></li>
+            </ul>
+            <div id="mqttDetails">
+
+            </div>
+            <div id="influxDetails">
+                <input id="influxQuery" type="text" class="ui-widget ui-widget-content ui-corner-all">
+                <table id="gridInflux"></table>
+                <div id="pagerInflux"></div>
+            </div>
+        </div>
+
+
+    </div>
 
     <div id="about">
         <p>
