@@ -359,8 +359,7 @@ var searchPatternRegExp;
 
 function topicRefresh(e) {
 
-    console.log('!', searchPattern, $topic.val(), e);
-
+    //console.log('!', searchPattern, $topic.val(), e);
 
     searchPattern = $topic.val();
 
@@ -778,7 +777,7 @@ var pauseCache = {};
 
 $.widget( "custom.colorselectmenu", $.ui.selectmenu, {
     _renderItem: function( ul, item ) {
-        console.log(item)
+        //console.log(item)
         var li = $( "<li class='" + item.element.attr( "data-class" ) + "'>" + item.label + "</li>");
 
         if ( item.disabled ) {
@@ -1237,9 +1236,9 @@ $mqttStatus.html('<span style="color:red">disconnected</span></span>');
 var client;
 
 if (config.mqttHost && config.mqttPort) {
-    console.log('url protocol', config.protocol);
+  //console.log('url protocol', config.protocol);
     var url = config.protocol + '://' + config.mqttHost + ':' + config.mqttPort;
-    console.log('trying to connect to ' + url);
+  //console.log('trying to connect to ' + url);
 
     if (config.server.indexOf(url) === -1) config.server.unshift(url);
     storage.set('mqtt-admin', config);
@@ -1253,7 +1252,7 @@ if (config.mqttHost && config.mqttPort) {
 
     client.onConnectionLost = function (e) {
         mqttConnected = false;
-        console.log('mqtt close', e);
+      //console.log('mqtt close', e);
         $mqttStatus.html('<span style="color:red">disconnected</span>');
         $host.val(config.mqttHost);
         $port.val(config.mqttPort);
@@ -1387,24 +1386,24 @@ if (config.mqttHost && config.mqttPort) {
 function mqttConnect() {
     var connectOptions = {
         onSuccess: function () {
-            console.log('mqtt connected');
+          //console.log('mqtt connected');
             mqttConnected = true;
 
             var url = config.protocol + '://' + config.mqttHost + ':'+ config.mqttPort;
             $mqttStatus.html('<span style="color:green">connected to ' + url + '</span>');
             $dialogSettings.dialog('close');
 
-            console.log('mqtt subscribe #');
+          //console.log('mqtt subscribe #');
             client.subscribe('#');
 
-            console.log('mqtt subscribe $SYS/#');
+          //console.log('mqtt subscribe $SYS/#');
             client.subscribe('$SYS/#');
 
             if ($topic.val() !== '') $load_gridStatus.show();
             mqttRetainTimeout();
         }
     };
-    console.log('protocol:', config.protocol);
+  //console.log('protocol:', config.protocol);
     if (config.protocol === 'wss') connectOptions.useSSL = true;
     if (config.user) connectOptions.userName = config.user;
     if (config.password) connectOptions.password = config.password;
@@ -1422,7 +1421,7 @@ function mqttRetainTimeout() {
     mqttIndicator();
     receiveRetainedTimeout = setTimeout(function () {
         receiveRetainedTimeout = null;
-        console.log('mqtt received retained topics');
+      //console.log('mqtt received retained topics');
         if ($topic.val() !== '') buildTable($topic.val());
     }, 300);
 }
@@ -1431,7 +1430,7 @@ function mqttDisconnect() {
     if (mqttConnected) {
         mqttConnected = false;
         client.disconnect();
-        console.log('mqtt disconnected');
+      //console.log('mqtt disconnected');
     }
 }
 
@@ -1450,9 +1449,8 @@ function mqttIndicator() {
 }
 
 function mqttPublish(topic, payload, options) {
-console.log(topic, payload, options);
     if (!mqttConnected) {
-        console.log('trying to publish while not connected');
+      //console.log('trying to publish while not connected');
     } else {
         mqttIndicator();
        client.send(topic, payload, options.qos, options.retain);
