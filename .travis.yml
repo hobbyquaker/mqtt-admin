@@ -1,0 +1,26 @@
+sudo: true
+
+services:
+  - docker
+
+before_script:
+  - sudo apt-get --yes --no-install-recommends install binfmt-support qemu-user-static
+  - echo ':arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:' | sudo tee -a /proc/sys/fs/binfmt_misc/register
+
+
+jobs:
+  include:
+    - stage: build docker image
+      script:
+      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      - docker build -f Dockerfile.armhf -t mqtt-admin:armhf .
+      - docker images
+      - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo ""; else echo -$TRAVIS_BRANCH ; fi`
+      - docker tag mqtt-admin:armhf mqttsmarthome/mqtt-admin:armhf$TAG
+    - stage: test docker image
+      script:
+        - docker run -d mqttsmarthome/mqtt-admin:armhf$TAG
+        - docker ps | grep armhf
+after_success:
+    - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+    - docker push mqttsmarthome/mqtt-admin:armhf$TAG
