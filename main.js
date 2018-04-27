@@ -20,8 +20,8 @@ import 'index.less!';
 
 var config = storage.get('mqtt-admin') || {};
 
-config.mqttHost = config.mqttHost || '';
-config.mqttPort = config.mqttPort || '';
+config.mqttHost = config.mqttHost || location.hostname;
+config.mqttPort = config.mqttPort || Number(location.port);
 config.influxPort = config.influxPort || 8086;
 config.clientId = config.clientId || 'mqtt-admin';
 config.maxPayloadSize = config.maxPayloadSize || 1024;
@@ -1247,6 +1247,7 @@ if (config.mqttHost && config.mqttPort) {
     $('#mqttClientId').html(clientId);
 
     $mqttStatus.html('<span style="color:red">disconnected</span> <span style="color:orange">trying to connect to ' + config.protocol + '://' + config.mqttHost + ':' + config.mqttPort + '</span>');
+    // Todo: What about the /mqtt ? Should this be always the default?
     client = new Paho.MQTT.Client(config.mqttHost, config.mqttPort, '/mqtt', clientId);
 
 
