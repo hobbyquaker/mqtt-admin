@@ -1398,7 +1398,7 @@ function mqttConnect() {
             client.subscribe('#');
 
           //console.log('mqtt subscribe $SYS/#');
-            client.subscribe('$SYS/#');
+            //client.subscribe('$SYS/#'); // Todo: maybe optional?
 
             if ($topic.val() !== '') $load_gridStatus.show();
             mqttRetainTimeout();
