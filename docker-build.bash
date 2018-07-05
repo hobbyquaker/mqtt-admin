@@ -5,4 +5,4 @@ npm install
 bower install
 grunt build
 
-docker build -t mqtt-admin .
+docker build -t dersimn/mqtt-admin .
