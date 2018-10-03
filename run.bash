@@ -13,6 +13,11 @@ fi
 if [ -f /ssl/client.crl ]; then
 	export SSL_CLIENT_AUTH_CRL=1
 fi
+if [[ -z "${HTTPS_REDIRECT_PORT}" ]]; then
+	HTTPS_REDIRECT_PORT=""
+else
+	HTTPS_REDIRECT_PORT=":${HTTPS_REDIRECT_PORT}"
+fi
 
 # Build Config
 cat /nginx.template | mo > ${CONFIG_PATH}

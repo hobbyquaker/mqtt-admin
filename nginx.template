@@ -95,7 +95,7 @@ http {
                 set $test  "${test}B"; 
             }
             if ($test = AB) { 
-                return 301 https://$host$request_uri;
+                return 301 https://$host{{HTTPS_REDIRECT_PORT}}$request_uri;
                 break; 
             }
 
@@ -125,33 +125,33 @@ http {
             index  index.htm index.html;
 
             {{#SSL_CLIENT_AUTH}}
-            if ($access_allowed = no) {
-                return 403;
-            }
-
-            # Workaround for iOS devices - Part 1
-            # Websockets are not authenticated via Client-Certs in iOS
-            # see:
-            #   http://blog.christophermullins.com/2017/04/30/securing-homeassistant-with-client-certificates
-            #   https://github.com/home-assistant/home-assistant-iOS/issues/27
-            #   https://www.bountysource.com/issues/35354552-websocket-does-not-send-client-certificate
-            if ($access_allowed = yes) {
-                access_by_lua_block {
-                    local HMAC_SECRET = "hunter2"
-                    local crypto = require "crypto"
-
-                    if ngx.var.ssl_client_verify == "SUCCESS" then
-                      client = crypto.digest("sha256", ngx.var.ssl_client_cert)
-                      expires = ngx.time() + 3600
-
-                      ngx.header["Set-Cookie"] = {
-                        string.format("AccessToken=%s; path=/", crypto.hmac.digest("sha256", string.format("%s%d", client, expires), HMAC_SECRET)),
-                        string.format("ClientId=%s; path=/", client),
-                        string.format("AccessExpires=%d; path=/", expires)
-                      }
-                    end
+                if ($access_allowed = no) {
+                    return 403;
                 }
-            }
+
+                # Workaround for iOS devices - Part 1
+                # Websockets are not authenticated via Client-Certs in iOS
+                # see:
+                #   http://blog.christophermullins.com/2017/04/30/securing-homeassistant-with-client-certificates
+                #   https://github.com/home-assistant/home-assistant-iOS/issues/27
+                #   https://www.bountysource.com/issues/35354552-websocket-does-not-send-client-certificate
+                if ($access_allowed = yes) {
+                    access_by_lua_block {
+                        local HMAC_SECRET = "hunter2"
+                        local crypto = require "crypto"
+
+                        if ngx.var.ssl_client_verify == "SUCCESS" then
+                          client = crypto.digest("sha256", ngx.var.ssl_client_cert)
+                          expires = ngx.time() + 3600
+
+                          ngx.header["Set-Cookie"] = {
+                            string.format("AccessToken=%s; path=/", crypto.hmac.digest("sha256", string.format("%s%d", client, expires), HMAC_SECRET)),
+                            string.format("ClientId=%s; path=/", client),
+                            string.format("AccessExpires=%d; path=/", expires)
+                          }
+                        end
+                    }
+                }
             {{/SSL_CLIENT_AUTH}}
         }
 
@@ -163,29 +163,29 @@ http {
                 proxy_set_header    Connection     $connection_upgrade;
 
                 {{#SSL_CLIENT_AUTH}}
-                # Workaround for iOS devices - Part 2
-                if ($access_allowed = no) {
-                    access_by_lua_block {
-                        local HMAC_SECRET = "hunter2"
-                        local crypto = require "crypto"
+                    # Workaround for iOS devices - Part 2
+                    if ($access_allowed = no) {
+                        access_by_lua_block {
+                            local HMAC_SECRET = "hunter2"
+                            local crypto = require "crypto"
 
-                        if ngx.var.ssl_client_verify == "NONE" then
-                          client = ngx.var.cookie_ClientId
-                          client_hmac = ngx.var.cookie_AccessToken
-                          access_expires = ngx.var.cookie_AccessExpires
+                            if ngx.var.ssl_client_verify == "NONE" then
+                              client = ngx.var.cookie_ClientId
+                              client_hmac = ngx.var.cookie_AccessToken
+                              access_expires = ngx.var.cookie_AccessExpires
 
-                          if client ~= nil and client_hmac ~= nil and access_expires ~= nil then
-                            hmac = crypto.hmac.digest("sha256", string.format("%s%d", client, access_expires), HMAC_SECRET)
+                              if client ~= nil and client_hmac ~= nil and access_expires ~= nil then
+                                hmac = crypto.hmac.digest("sha256", string.format("%s%d", client, access_expires), HMAC_SECRET)
 
-                            if hmac ~= "" and hmac == client_hmac and tonumber(access_expires) > ngx.time() then
-                              return
+                                if hmac ~= "" and hmac == client_hmac and tonumber(access_expires) > ngx.time() then
+                                  return
+                                end
+                              end
                             end
-                          end
-                        end
 
-                        ngx.exit(ngx.HTTP_FORBIDDEN)
+                            ngx.exit(ngx.HTTP_FORBIDDEN)
+                        }
                     }
-                }
                 {{/SSL_CLIENT_AUTH}}
             }
         {{/MQTT_HOST}}
