@@ -1,6 +1,6 @@
 import bower from 'bower.json';
 
-import Paho from 'mqttws';
+import Paho from 'lib/paho.javascript/paho-mqtt';
 import $ from 'jquery';
 import 'jquery-ui';
 import 'free-jqgrid';
@@ -1248,7 +1248,7 @@ if (config.mqttHost && config.mqttPort) {
 
     $mqttStatus.html('<span style="color:red">disconnected</span> <span style="color:orange">trying to connect to ' + config.protocol + '://' + config.mqttHost + ':' + config.mqttPort + '</span>');
     // Todo: What about the /mqtt ? Should this be always the default?
-    client = new Paho.MQTT.Client(config.mqttHost, config.mqttPort, '/mqtt', clientId);
+    client = new Paho.Client(config.mqttHost, config.mqttPort, '/mqtt', clientId);
 
 
     client.onConnectionLost = function (e) {
