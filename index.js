@@ -1,19 +1,3 @@
-import bower from 'bower.json';
-
-import Paho from 'lib/paho.javascript/paho-mqtt';
-import $ from 'jquery';
-import 'jquery-ui';
-import 'free-jqgrid';
-import 'bower_components/free-jqgrid/plugins/ui.multiselect';
-import storage from 'bower_components/store-js/store'; // FIXME full path to workaround https://github.com/marcuswestin/store.js/pull/123
-
-import 'bower_components/jquery-ui/themes/redmond/jquery-ui.min.css!';
-import 'bower_components/free-jqgrid/css/ui.jqgrid.min.css!';
-import 'bower_components/free-jqgrid/plugins/ui.multiselect.css!';
-
-import 'index.less!';
-
-
 /*******************************************************************************
  *  Config
  ******************************************************************************/
@@ -150,7 +134,7 @@ $dialogTopicDetails.dialog({
 });
 
 $dialogAbout.dialog({
-    title: 'mqtt-admin version ' + bower.version,
+    title: 'mqtt-admin version ' + pkg.version,
     modal: true,
     autoOpen: false,
     width: 640,
