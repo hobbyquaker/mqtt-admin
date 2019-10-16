@@ -28,3 +28,13 @@ A nice tutorial on how to generate your own certificates, is located [here](http
         dersimn/mqtt-admin
 
 If you want to change the default ports, specify it like this: `-p 8001:80 -p 8443:443 -e "HTTPS_REDIRECT_PORT=8443"`.
+
+## Development
+
+Basic build:
+
+    npm install
+    grunt
+    docker build -t dersimn/mqtt-admin .
+    docker build -t dersimn/mqtt-admin:armhf -f Dockerfile.armhf .
+    grunt clean
