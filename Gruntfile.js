@@ -1,91 +1,94 @@
+const pkg = require('./package.json');
 
 module.exports = function (grunt) {
-    grunt.config.data.bower = require('./bower.json');
     grunt.initConfig({
-        "steal-build": {
-            bundle: {
+        pkg: pkg,
+
+        browserify: {
+            pkgjs: {
+                src: ['./package.json'],
+                dest: 'build/package.js',
                 options: {
-                    system: {
-                        config: "bower.json!bower"
+                    browserifyOptions: {
+                        standalone: 'pkg'
                     }
                 }
+            },
+        },
+
+        less: {
+            dist: {
+                options: {
+                    paths: ["assets/css"]
+                },
+                files: {"build/index.css": "index.less"}
             }
         },
+
+        concat: {
+            js: {
+                src: [
+                    'build/package.js',
+                    'node_modules/jquery/dist/jquery.js',
+                    'node_modules/components-jqueryui/jquery-ui.js',
+                    'node_modules/free-jqgrid/dist/jquery.jqgrid.src.js',
+                    'node_modules/free-jqgrid/dist/plugins/ui.multiselect.js',
+                    'node_modules/store-js/dist/store.legacy.js',
+                    'node_modules/paho-mqtt/paho-mqtt.js'
+                ],
+                dest: 'dist/bundle.js'
+            },
+            css: {
+                src: [
+                    'node_modules/components-jqueryui/themes/base/jquery-ui.css',
+                    'node_modules/components-jqueryui/themes/redmond/jquery-ui.css',
+                    'node_modules/free-jqgrid/dist/css/ui.jqgrid.css',
+                    'node_modules/free-jqgrid/dist/plugins/css/ui.multiselect.css',
+                    'build/index.css'
+                ],
+                dest: 'dist/bundle.css'
+            }
+        },
+
         copy: {
-            release: {
+            dist: {
                 files: [
                     {
                         expand: true,
+                        flatten: true,
                         src: [
-                            'bower_components/steal/steal.production.js',
-                            'bower_components/jquery-ui/themes/redmond/images/**',
-                            'dist/bundles/**',
-                            'LICENSE',
-                            'README.md'
+                            'node_modules/components-jqueryui/themes/redmond/images/*'
                         ],
-                        dest: 'tmp/'
+                        dest: 'dist/images/'
+                    },
+                    {
+                        src: [
+                            'index.html',
+                            'index.js',
+
+                        ],
+                        dest: 'dist/'
                     }
                 ]
             }
         },
+
         clean: {
-            release: ["tmp"]
-        },
-        'string-replace': {
-            release: {
-                files: {
-                    'tmp/': 'index.html'
-                },
-                options: {
-                    replacements: [{
-                        pattern: 'bower_components\/steal\/steal\.js',
-                        replacement: 'bower_components/steal/steal.production.js'
-                    }]
-                }
-            }
-        },
-        zip: {
-            'release': {
-                router: function (filepath) {
-                    return filepath.replace(/^tmp/, 'mqtt-admin');
-                },
-                src: ['tmp/**'],
-                dest: 'releases/mqtt-admin_' + grunt.config.data.bower.version + '.zip'
-            }
-        },
-        bump: {
-            options: {
-                files: ['bower.json'],
-                updateConfigs: ['bower'],
-                commit: false,
-                commitMessage: 'Release v%VERSION%',
-                commitFiles: ['package.json'],
-                createTag: false,
-                tagName: 'v%VERSION%',
-                tagMessage: 'Version %VERSION%',
-                push: false,
-                pushTo: 'upstream',
-                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d',
-                globalReplace: false,
-                regExp: false,
-                prereleaseName: 'beta'
-            }
+            build: [
+                'build/',
+                'dist/',
+                'node_modules/',
+                'package-lock.json'
+            ]
         }
+        
     });
 
-    grunt.loadNpmTasks("steal-tools");
+    grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-string-replace');
-    grunt.loadNpmTasks('grunt-bump');
-    grunt.loadNpmTasks('grunt-zip');
 
-    grunt.registerTask("build", ["steal-build", "clean", "copy", "string-replace"]);
-    grunt.registerTask("release prerelease", ["bump:prerelease", "build", "zip"]);
-    grunt.registerTask("release patch", ["bump:patch", "build", "zip"]);
-    grunt.registerTask("release minor", ["bump:minor", "build", "zip"]);
-    grunt.registerTask("release major", ["bump:major", "build", "zip"]);
-    grunt.registerTask("release premajor", ["bump:premajor", "build", "zip"]);
-
-
+    grunt.registerTask('default', ['browserify', 'less', 'concat', 'copy']);
 };
