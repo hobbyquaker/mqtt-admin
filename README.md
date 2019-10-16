@@ -1,5 +1,13 @@
 This is a fork from https://github.com/hobbyquaker/mqtt-admin used to generate Docker Images. See original documentation for reference about the script itself.
 
+## Supported tags
+
+* [`1.2.0`, `latest`](https://github.com/dersimn/mqtt-admin/tree/v1.2.0)
+* [`1.1.0`](https://github.com/dersimn/mqtt-admin/tree/v1.1.0)
+* [`1.0.0`, `hobbyquaker-untouched`](https://github.com/hobbyquaker/mqtt-admin/releases/tag/v1.0.0)
+
+Images for Raspberry Pi are available with the suffix `-armhf`. E.g.: `1.0.0` -> `1.0.0-armhf`.
+
 ## Config
 
 This image can proxy-pass the Websocket connection from your MQTT broker, by setting the env variable `MQTT_HOST`.  
