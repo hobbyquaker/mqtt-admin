@@ -17,7 +17,7 @@ RUN git clone https://github.com/dersimn/luacrypto /opt/luacrypto \
 
 RUN curl -sSL -o /usr/local/bin/mo https://git.io/get-mo && chmod a+x /usr/local/bin/mo
 
-COPY tmp /www
+COPY dist /www
 COPY nginx.template /nginx.template
 COPY run.bash /run.bash
 
