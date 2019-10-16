@@ -2,7 +2,7 @@
  *  Config
  ******************************************************************************/
 
-var config = storage.get('mqtt-admin') || {};
+var config = store.get('mqtt-admin') || {};
 
 config.mqttHost = config.mqttHost || location.hostname;
 config.mqttPort = config.mqttPort || Number(location.port);
@@ -235,11 +235,11 @@ $dialogSettings.dialog({
                     config.clientIdSuffix = $random.is(':checked');
                     config.mqttshTrim = $mqttshTrim.is(':checked');
                     config.mqttshAutocomplete = $mqttshAutocomplete.is(':checked');
-                    storage.set('mqtt-admin', config);
+                    store.set('mqtt-admin', config);
                     mqttDisconnect();
                     window.location.reload();
                 } else {
-                    storage.set('mqtt-admin', config);
+                    store.set('mqtt-admin', config);
                     if (mqttConnected) $dialogSettings.dialog('close');
                 }
 
@@ -500,7 +500,7 @@ function buildTable(topic) {
     topicRefresh();
 
     config.topic = topic;
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     //console.log('buildTable', topic, searchPatternRegExp);
 
@@ -687,7 +687,7 @@ function addToHistory(topic, payload, retain) {
 
     //console.log('history', publishHistory);
     config.publishHistory = publishHistory;
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     $gridHistory.jqGrid('clearGridData');
     $('#load_gridHistory').show();
@@ -793,7 +793,7 @@ function buildSubscribeRow(topic, payload, color) {
 $tabsSubscribe.tabs({
     activate: function () {
         config.tabsSubscribeActive = $tabsSubscribe.tabs('option', 'active');
-        storage.set('mqtt-admin', config);
+        store.set('mqtt-admin', config);
     }
 });
 
@@ -809,7 +809,7 @@ $tabsSubscribe.delegate('span.ui-icon-close.subscribe-tab', 'click', function ()
     $('#' + panelId).remove();
     $tabsSubscribe.tabs('refresh');
 
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
 });
 
@@ -821,7 +821,7 @@ $tabsSubscribe.delegate('.subscription-remove', 'click', function () {
     //console.log(subscriptions[tab]);
     subscriptions[tab].topics.splice(subscriptions[tab].topics.indexOf(topic), 1);
     config.tabsSubscribe[tab].subscriptions.splice(config.tabsSubscribe[tab].subscriptions.indexOf(topic), 1);
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
     $this.parent().remove();
     resizeGrids();
 
@@ -871,7 +871,7 @@ function addTab(id, label) {
                 $this.toggle();
                 $this.siblings('a').toggle().html($this.val());
                 config.tabsSubscribe[id].label = $this.val();
-                storage.set('mqtt-admin', config);
+                store.set('mqtt-admin', config);
             } else if (e.which === 38 || e.which === 40 || e.which === 37 || e.which === 39 || e.keyCode  ===  32) {
                 e.stopPropagation();
             } else if (e.which === 27) {
@@ -883,7 +883,7 @@ function addTab(id, label) {
                 $this.toggle();
                 $this.siblings('a').toggle().html($this.val());
                 config.tabsSubscribe[id].label = $this.val();
-                storage.set('mqtt-admin', config);
+                store.set('mqtt-admin', config);
             }
         } else {
             e.stopPropagation();
@@ -1030,7 +1030,7 @@ function addTab(id, label) {
             }
 
             //console.log(config);
-            storage.set('mqtt-admin', config);
+            store.set('mqtt-admin', config);
         }
     }).autocomplete({
         source: function (req, res) {
@@ -1069,13 +1069,13 @@ function addTab(id, label) {
         update: function() {
             $tabsSubscribe.tabs('refresh');
             config.tabsSubscribeOrder = $uiTabsNav.sortable('toArray').slice(1);
-            storage.set('mqtt-admin', config);
+            store.set('mqtt-admin', config);
         }
     });
 
     $tabsSubscribe.tabs('refresh');
     config.tabsSubscribeOrder = $uiTabsNav.sortable('toArray').slice(1);
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     resizeGrids();
 }
@@ -1147,7 +1147,7 @@ function saveGridState(name, perm) {
     //console.log(name, columnsState);
     if (!config[name]) config[name] = {};
     config[name] = columnsState;
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
 }
 
@@ -1225,7 +1225,7 @@ if (config.mqttHost && config.mqttPort) {
   //console.log('trying to connect to ' + url);
 
     if (config.server.indexOf(url) === -1) config.server.unshift(url);
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     var clientId = config.clientId + (config.clientIdSuffix ? '_' + ('00000000' + Math.floor(Math.random() * 0xffffffff).toString(16)).slice(-8) : '');
     $('#mqttClientId').html(clientId);
