@@ -1,173 +1,181 @@
-<title>mqtt-admin</title>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>mqtt-admin</title>
+    <link rel="stylesheet" href="bundle.css">
+  </head>
+  <body>
+    <div id="container" style="display: none;">
 
-<script src="bower_components/steal/steal.js" data-main="main"></script>
-
-<div id="container" style="display: none;">
-
-    <div id="tabs">
+      <div id="tabs">
         <ul>
-            <li><a href="#publish">Publish</a></li>
-            <li><a href="#subscribe">Subscribe</a></li>
-            <li><a href="#status">Status</a></li>
+          <li><a href="#publish">Publish</a></li>
+          <li><a href="#subscribe">Subscribe</a></li>
+          <li><a href="#status">Status</a></li>
         </ul>
 
         <div id="status">
-            <input id="topic" type="text" placeholder=" ...type in a topic (wildcards + and # allowed) and press enter" class="ui-widget ui-widget-content ui-corner-all">
-            <table id="gridStatus"></table>
-            <div id="pagerStatus"></div>
+          <input id="topic" type="text" placeholder=" ...type in a topic (wildcards + and # allowed) and press enter" class="ui-widget ui-widget-content ui-corner-all">
+          <table id="gridStatus"></table>
+          <div id="pagerStatus"></div>
         </div>
 
         <div id="publish">
-            <p>
-                <label class="publish" for="publishTopic">Topic</label><input class="ui-widget ui-widget-content ui-corner-all" type="text" id="publishTopic">
-            </p>
-            <p>
-                <label class="publish" for="publishPayload">Payload</label>
-                <textarea class="ui-widget ui-widget-content ui-corner-all" id="publishPayload" rows="1"></textarea>
-            </p>
-            <p style="margin-top: -10px"><!-- todo -->
-                <label for="publishPub"></label><button id="publishPub" type="button">Publish</button>
-                <button id="publishPubRetain" type="button">Publish (retain)</button>
-                <select id="publishQos">
-                    <option value="0">QOS 0</option>
-                    <option value="1">QOS 1</option>
-                    <option value="2">QOS 2</option>
-                </select>
-                <span id="jsonLint" style="display: none;"><span class='ui-icon ui-icon-check inline-icon' role='presentation'>Valid JSON</span>JSON</span>
-            </p>
-            <div id="tabsPublish">
-                <ul>
-                    <li><a href="#history">History</a></li>
-                  <!-- TODO <li><a href="#favorites">Favorites</a></li> -->
-                </ul>
-                <div id="history">
-                    <table id="gridHistory" class="publish-grid"></table>
-                    <div id="pagerHistory"></div>
-                </div>
-                <!-- TODO
-                <div id="favorites">
-                    <table id="gridFavorites" class="publish-grid"></table>
-                    <div id="pagerFavorites"></div>
-                </div> -->
-
+          <p>
+            <label class="publish" for="publishTopic">Topic</label><input class="ui-widget ui-widget-content ui-corner-all" type="text" id="publishTopic">
+          </p>
+          <p>
+            <label class="publish" for="publishPayload">Payload</label>
+            <textarea class="ui-widget ui-widget-content ui-corner-all" id="publishPayload" rows="1"></textarea>
+          </p>
+          <p style="margin-top: -10px"><!-- todo -->
+            <label for="publishPub"></label><button id="publishPub" type="button">Publish</button>
+            <button id="publishPubRetain" type="button">Publish (retain)</button>
+            <select id="publishQos">
+              <option value="0">QOS 0</option>
+              <option value="1">QOS 1</option>
+              <option value="2">QOS 2</option>
+            </select>
+            <span id="jsonLint" style="display: none;"><span class='ui-icon ui-icon-check inline-icon' role='presentation'>Valid JSON</span>JSON</span>
+          </p>
+          <div id="tabsPublish">
+            <ul>
+              <li><a href="#history">History</a></li>
+              <!-- TODO <li><a href="#favorites">Favorites</a></li> -->
+            </ul>
+            <div id="history">
+              <table id="gridHistory" class="publish-grid"></table>
+              <div id="pagerHistory"></div>
             </div>
+            <!-- TODO
+            <div id="favorites">
+              <table id="gridFavorites" class="publish-grid"></table>
+              <div id="pagerFavorites"></div>
+            </div> -->
+
+          </div>
         </div>
 
         <div id="subscribe">
-            <div id="tabsSubscribe">
-                <ul></ul>
-            </div>
+          <div id="tabsSubscribe">
+            <ul></ul>
+          </div>
         </div>
 
-    </div>
+      </div>
 
 
-    <div id="dialogSettings" title="Settings">
+      <div id="dialogSettings" title="Settings">
         <div id="tabsSettings">
-            <ul>
-                <li><a href="#brokerSettings">MQTT Broker</a></li>
-                <!--<li><a href="#influxSettings">InfluxDB</a></li>-->
-                <li><a href="#mqttshSettings">mqtt-smarthome</a></li>
-            </ul>
+          <ul>
+            <li><a href="#brokerSettings">MQTT Broker</a></li>
+            <!--<li><a href="#influxSettings">InfluxDB</a></li>-->
+            <li><a href="#mqttshSettings">mqtt-smarthome</a></li>
+          </ul>
 
-            <div id="brokerSettings">
-                <p>
-                    <span class="span-label">Status:</span> <span id="mqttStatus"></span><br>
-                    <span class="span-label">ClientId:</span> <span id="mqttClientId"></span>
-                </p>
-                <div class="left-50">
-                    <label for="protocol">Protocol</label>
-                    <select id="protocol">
-                        <option value="ws" selected="selected">ws://</option>
-                        <option value="wss">wss://</option>
-                    </select><br>
-                    <label for="host">Host</label><input class="ui-widget ui-widget-content  ui-corner-all" id="host" type="text"><br>
-                    <label for="port">Port</label><input class="ui-widget ui-widget-content  ui-corner-all" id="port" type="text"><br>
-                    <select id="server">
-                        <option value="">choose Server</option>
-                    </select>
-                </div>
-                <div class="right-50">
-                    <label for="user">User</label><input class="ui-widget ui-widget-content  ui-corner-all" id="user" type="text"><br>
-                    <label for="password">Password</label><input class="ui-widget ui-widget-content  ui-corner-all" id="password" type="text"><br>
-                    <label for="clientId">ClientId</label><input class="ui-widget ui-widget-content  ui-corner-all" id="clientId" type="text"><br>
-                    <label class="checkbox-label" for="random"><input type="checkbox" id="random">Random ClientId Suffix</label>
-                </div>
-                <div style="clear: both; height: 6px;"></div>
+          <div id="brokerSettings">
+            <p>
+              <span class="span-label">Status:</span> <span id="mqttStatus"></span><br>
+              <span class="span-label">ClientId:</span> <span id="mqttClientId"></span>
+            </p>
+            <div class="left-50">
+              <label for="protocol">Protocol</label>
+              <select id="protocol">
+                <option value="ws" selected="selected">ws://</option>
+                <option value="wss">wss://</option>
+              </select><br>
+              <label for="host">Host</label><input class="ui-widget ui-widget-content  ui-corner-all" id="host" type="text"><br>
+              <label for="port">Port</label><input class="ui-widget ui-widget-content  ui-corner-all" id="port" type="text"><br>
+              <select id="server">
+                <option value="">choose Server</option>
+              </select>
             </div>
-
-            <!--<div id="influxSettings">
-                <p>
-                    <label for="influxEnable">Enable</label><input type="checkbox" id="influxEnable">
-                </p>
-                <p>
-                    <label for="influxHost">Host</label><input id="influxHost" class="ui-widget ui-widget-content ui-corner-all" type="text"><br>
-                    <label for="influxPort">Port</label><input id="influxPort" class="ui-widget ui-widget-content ui-corner-all" type="text"><br>
-                    <label for="influxDatabase">Database</label><input class="ui-widget ui-widget-content ui-corner-all" id="influxDatabase" type="text"><br>
-                </p>
-            </div>-->
-
-            <div id="mqttshSettings">
-                <p>
-                    <label class="large" for="mqttshTrim">Trim <code>+/status/#</code> topics to <code>+//#</code></label><input type="checkbox" id="mqttshTrim">
-                </p>
-                <p>
-                    <label class="large" for="mqttshAutocomplete">Autocomplete <code>+//</code> topics to <code>+/status/</code> or <code>+/set/</code></label><input type="checkbox" id="mqttshAutocomplete">
-                </p>
+            <div class="right-50">
+              <label for="user">User</label><input class="ui-widget ui-widget-content  ui-corner-all" id="user" type="text"><br>
+              <label for="password">Password</label><input class="ui-widget ui-widget-content  ui-corner-all" id="password" type="text"><br>
+              <label for="clientId">ClientId</label><input class="ui-widget ui-widget-content  ui-corner-all" id="clientId" type="text"><br>
+              <label class="checkbox-label" for="random"><input type="checkbox" id="random">Random ClientId Suffix</label>
             </div>
+            <div style="clear: both; height: 6px;"></div>
+          </div>
+
+          <!--<div id="influxSettings">
+            <p>
+              <label for="influxEnable">Enable</label><input type="checkbox" id="influxEnable">
+            </p>
+            <p>
+              <label for="influxHost">Host</label><input id="influxHost" class="ui-widget ui-widget-content ui-corner-all" type="text"><br>
+              <label for="influxPort">Port</label><input id="influxPort" class="ui-widget ui-widget-content ui-corner-all" type="text"><br>
+              <label for="influxDatabase">Database</label><input class="ui-widget ui-widget-content ui-corner-all" id="influxDatabase" type="text"><br>
+            </p>
+          </div>-->
+
+          <div id="mqttshSettings">
+            <p>
+              <label class="large" for="mqttshTrim">Trim <code>+/status/#</code> topics to <code>+//#</code></label><input type="checkbox" id="mqttshTrim">
+            </p>
+            <p>
+              <label class="large" for="mqttshAutocomplete">Autocomplete <code>+//</code> topics to <code>+/status/</code> or <code>+/set/</code></label><input type="checkbox" id="mqttshAutocomplete">
+            </p>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div id="topicDetails" title="Topic Details">
+      <div id="topicDetails" title="Topic Details">
         <div id="tabsDetails">
-            <ul>
-                <li><a href="#mqttDetails">MQTT</a></li>
-                <li><a href="#influxDetails">InfluxDB</a></li>
-            </ul>
-            <div id="mqttDetails">
+          <ul>
+            <li><a href="#mqttDetails">MQTT</a></li>
+            <li><a href="#influxDetails">InfluxDB</a></li>
+          </ul>
+          <div id="mqttDetails">
 
-            </div>
-            <div id="influxDetails">
-                <input id="influxQuery" type="text" class="ui-widget ui-widget-content ui-corner-all">
-                <table id="gridInflux"></table>
-                <div id="pagerInflux"></div>
-            </div>
+          </div>
+          <div id="influxDetails">
+            <input id="influxQuery" type="text" class="ui-widget ui-widget-content ui-corner-all">
+            <table id="gridInflux"></table>
+            <div id="pagerInflux"></div>
+          </div>
         </div>
 
 
-    </div>
+      </div>
 
-    <div id="about">
+      <div id="about">
         <p>
-            See Readme and watchout for updates at <a href="https://github.com/hobbyquaker/mqtt-admin">https://github.com/hobbyquaker/mqtt-admin</a>
+          See Readme and watchout for updates at <a href="https://github.com/hobbyquaker/mqtt-admin">https://github.com/hobbyquaker/mqtt-admin</a>
         </p>
 
         <p>Copyright (c) Sebastian Raff <a href="mailto:hq@ccu.io">hq@ccu.io</a> (<a
-                href="https://github.com/hobbyquaker">https://github.com/hobbyquaker</a>)
+            href="https://github.com/hobbyquaker">https://github.com/hobbyquaker</a>)
         </p>
 
         <p>
-            The MIT License (MIT)
+          The MIT License (MIT)
         </p>
 
         <p>Permission is hereby granted, free of charge, to any person obtaining a copy
-            of this software and associated documentation files (the "Software"), to deal
-            in the Software without restriction, including without limitation the rights
-            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-            copies of the Software, and to permit persons to whom the Software is
-            furnished to do so, subject to the following conditions:</p>
+          of this software and associated documentation files (the "Software"), to deal
+          in the Software without restriction, including without limitation the rights
+          to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+          copies of the Software, and to permit persons to whom the Software is
+          furnished to do so, subject to the following conditions:</p>
 
         <p><b>The above copyright notice and this permission notice shall be included in
-            all copies or substantial portions of the Software.</b></p>
+          all copies or substantial portions of the Software.</b></p>
 
         <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-            THE SOFTWARE.</p>
+          IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+          FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+          AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+          LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+          OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+          THE SOFTWARE.</p>
         </p>
-    </div>
+      </div>
 
-</div>
+    </div>
+    <script src="bundle.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
