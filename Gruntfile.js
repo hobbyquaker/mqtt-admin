@@ -33,7 +33,7 @@ module.exports = function (grunt) {
                     'node_modules/components-jqueryui/jquery-ui.js',
                     'node_modules/free-jqgrid/dist/jquery.jqgrid.src.js',
                     'node_modules/free-jqgrid/dist/plugins/ui.multiselect.js',
-                    'node_modules/store-js/dist/store.legacy.js',
+                    'node_modules/store-js/dist/store.legacy.min.js',
                     'node_modules/paho-mqtt/paho-mqtt.js'
                 ],
                 dest: 'dist/bundle.js'
