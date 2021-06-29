@@ -150,9 +150,7 @@ for (var i = 0; i < config.server.length; i++) {
 
 $server.selectmenu({
     width: 280,
-    open: function() {
-        $('.ui-selectmenu-open').zIndex($dialogSettings.zIndex()+1);
-    },
+    appendTo: $('#dialogSettings'),
     change: function () {
         var $this = $(this);
         var tmp0 = $this.val().split('://');
@@ -167,12 +165,8 @@ $server.selectmenu({
 
 $protocol.selectmenu({
     width: 96,
-    open: function() {
-        $('.ui-selectmenu-open').zIndex($dialogSettings.zIndex()+1);
-    }
+    appendTo: $('#dialogSettings')
 });
-
-
 
 $dialogSettings.dialog({
     width: 640,
