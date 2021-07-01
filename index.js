@@ -1,27 +1,11 @@
-import bower from 'bower.json';
-
-import Paho from 'mqttws';
-import $ from 'jquery';
-import 'jquery-ui';
-import 'free-jqgrid';
-import 'bower_components/free-jqgrid/plugins/ui.multiselect';
-import storage from 'bower_components/store-js/store'; // FIXME full path to workaround https://github.com/marcuswestin/store.js/pull/123
-
-import 'bower_components/jquery-ui/themes/redmond/jquery-ui.min.css!';
-import 'bower_components/free-jqgrid/css/ui.jqgrid.min.css!';
-import 'bower_components/free-jqgrid/plugins/ui.multiselect.css!';
-
-import 'index.less!';
-
-
 /*******************************************************************************
  *  Config
  ******************************************************************************/
 
-var config = storage.get('mqtt-admin') || {};
+var config = store.get('mqtt-admin') || {};
 
-config.mqttHost = config.mqttHost || '';
-config.mqttPort = config.mqttPort || '';
+config.mqttHost = config.mqttHost || location.hostname;
+config.mqttPort = config.mqttPort || Number(location.port);
 config.influxPort = config.influxPort || 8086;
 config.clientId = config.clientId || 'mqtt-admin';
 config.maxPayloadSize = config.maxPayloadSize || 1024;
@@ -150,7 +134,7 @@ $dialogTopicDetails.dialog({
 });
 
 $dialogAbout.dialog({
-    title: 'mqtt-admin version ' + bower.version,
+    title: 'mqtt-admin version ' + pkg.version,
     modal: true,
     autoOpen: false,
     width: 640,
@@ -166,9 +150,7 @@ for (var i = 0; i < config.server.length; i++) {
 
 $server.selectmenu({
     width: 280,
-    open: function() {
-        $('.ui-selectmenu-open').zIndex($dialogSettings.zIndex()+1);
-    },
+    appendTo: $('#dialogSettings'),
     change: function () {
         var $this = $(this);
         var tmp0 = $this.val().split('://');
@@ -183,12 +165,8 @@ $server.selectmenu({
 
 $protocol.selectmenu({
     width: 96,
-    open: function() {
-        $('.ui-selectmenu-open').zIndex($dialogSettings.zIndex()+1);
-    }
+    appendTo: $('#dialogSettings')
 });
-
-
 
 $dialogSettings.dialog({
     width: 640,
@@ -251,11 +229,11 @@ $dialogSettings.dialog({
                     config.clientIdSuffix = $random.is(':checked');
                     config.mqttshTrim = $mqttshTrim.is(':checked');
                     config.mqttshAutocomplete = $mqttshAutocomplete.is(':checked');
-                    storage.set('mqtt-admin', config);
+                    store.set('mqtt-admin', config);
                     mqttDisconnect();
                     window.location.reload();
                 } else {
-                    storage.set('mqtt-admin', config);
+                    store.set('mqtt-admin', config);
                     if (mqttConnected) $dialogSettings.dialog('close');
                 }
 
@@ -516,7 +494,7 @@ function buildTable(topic) {
     topicRefresh();
 
     config.topic = topic;
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     //console.log('buildTable', topic, searchPatternRegExp);
 
@@ -703,7 +681,7 @@ function addToHistory(topic, payload, retain) {
 
     //console.log('history', publishHistory);
     config.publishHistory = publishHistory;
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     $gridHistory.jqGrid('clearGridData');
     $('#load_gridHistory').show();
@@ -809,7 +787,7 @@ function buildSubscribeRow(topic, payload, color) {
 $tabsSubscribe.tabs({
     activate: function () {
         config.tabsSubscribeActive = $tabsSubscribe.tabs('option', 'active');
-        storage.set('mqtt-admin', config);
+        store.set('mqtt-admin', config);
     }
 });
 
@@ -825,7 +803,7 @@ $tabsSubscribe.delegate('span.ui-icon-close.subscribe-tab', 'click', function ()
     $('#' + panelId).remove();
     $tabsSubscribe.tabs('refresh');
 
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
 });
 
@@ -837,7 +815,7 @@ $tabsSubscribe.delegate('.subscription-remove', 'click', function () {
     //console.log(subscriptions[tab]);
     subscriptions[tab].topics.splice(subscriptions[tab].topics.indexOf(topic), 1);
     config.tabsSubscribe[tab].subscriptions.splice(config.tabsSubscribe[tab].subscriptions.indexOf(topic), 1);
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
     $this.parent().remove();
     resizeGrids();
 
@@ -887,7 +865,7 @@ function addTab(id, label) {
                 $this.toggle();
                 $this.siblings('a').toggle().html($this.val());
                 config.tabsSubscribe[id].label = $this.val();
-                storage.set('mqtt-admin', config);
+                store.set('mqtt-admin', config);
             } else if (e.which === 38 || e.which === 40 || e.which === 37 || e.which === 39 || e.keyCode  ===  32) {
                 e.stopPropagation();
             } else if (e.which === 27) {
@@ -899,7 +877,7 @@ function addTab(id, label) {
                 $this.toggle();
                 $this.siblings('a').toggle().html($this.val());
                 config.tabsSubscribe[id].label = $this.val();
-                storage.set('mqtt-admin', config);
+                store.set('mqtt-admin', config);
             }
         } else {
             e.stopPropagation();
@@ -1046,7 +1024,7 @@ function addTab(id, label) {
             }
 
             //console.log(config);
-            storage.set('mqtt-admin', config);
+            store.set('mqtt-admin', config);
         }
     }).autocomplete({
         source: function (req, res) {
@@ -1085,13 +1063,13 @@ function addTab(id, label) {
         update: function() {
             $tabsSubscribe.tabs('refresh');
             config.tabsSubscribeOrder = $uiTabsNav.sortable('toArray').slice(1);
-            storage.set('mqtt-admin', config);
+            store.set('mqtt-admin', config);
         }
     });
 
     $tabsSubscribe.tabs('refresh');
     config.tabsSubscribeOrder = $uiTabsNav.sortable('toArray').slice(1);
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     resizeGrids();
 }
@@ -1163,7 +1141,7 @@ function saveGridState(name, perm) {
     //console.log(name, columnsState);
     if (!config[name]) config[name] = {};
     config[name] = columnsState;
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
 }
 
@@ -1241,13 +1219,14 @@ if (config.mqttHost && config.mqttPort) {
   //console.log('trying to connect to ' + url);
 
     if (config.server.indexOf(url) === -1) config.server.unshift(url);
-    storage.set('mqtt-admin', config);
+    store.set('mqtt-admin', config);
 
     var clientId = config.clientId + (config.clientIdSuffix ? '_' + ('00000000' + Math.floor(Math.random() * 0xffffffff).toString(16)).slice(-8) : '');
     $('#mqttClientId').html(clientId);
 
     $mqttStatus.html('<span style="color:red">disconnected</span> <span style="color:orange">trying to connect to ' + config.protocol + '://' + config.mqttHost + ':' + config.mqttPort + '</span>');
-    client = new Paho.MQTT.Client(config.mqttHost, config.mqttPort, '/mqtt', clientId);
+    // Todo: What about the /mqtt ? Should this be always the default?
+    client = new Paho.Client(config.mqttHost, config.mqttPort, '/mqtt', clientId);
 
 
     client.onConnectionLost = function (e) {
@@ -1397,7 +1376,7 @@ function mqttConnect() {
             client.subscribe('#');
 
           //console.log('mqtt subscribe $SYS/#');
-            client.subscribe('$SYS/#');
+            //client.subscribe('$SYS/#'); // Todo: maybe optional?
 
             if ($topic.val() !== '') $load_gridStatus.show();
             mqttRetainTimeout();

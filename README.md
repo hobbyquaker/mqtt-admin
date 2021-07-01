@@ -1,78 +1,53 @@
-# mqtt-admin
+This is a fork from https://github.com/hobbyquaker/mqtt-admin used to generate Docker Images. See original documentation for reference about the script itself.
 
-MQTT Web Frontend: Publish, Subscribe and see Topic Status in a comfortable UI. 
+## Supported tags
 
-## getting started
+* [`1.2.0`, `latest`](https://github.com/dersimn/mqtt-admin/tree/v1.2.0)
+* [`1.1.0`](https://github.com/dersimn/mqtt-admin/tree/v1.1.0)
+* [`1.0.0`, `hobbyquaker-untouched`](https://github.com/hobbyquaker/mqtt-admin/releases/tag/v1.0.0)
 
-Download [mqtt-admin.zip](https://github.com/hobbyquaker/mqtt-admin/releases/latest), unzip, put it on a webserver and 
-open index.html with a modern browser. You can also give it a try by just visiting https://hobbyquaker.github.io/mqtt-admin
+Images for Raspberry Pi are available with the suffix `-armhf`. E.g.: `1.0.0` -> `1.0.0-armhf`.
 
-### Usage
+## Config
 
-mqtt-admin offers 3 tabs, Publish, Subscribe and Status, these are described in more detail below. Topic input fields offer
-autocompletion, mqtt-admin subscribes # to get all availabe topics to be able to offer this. Broker settings, the UI state, 
-subscriptions and the publish history are persisted in your browser local storage.
+This image can proxy-pass the Websocket connection from your MQTT broker, by setting the env variable `MQTT_HOST`.  
+You have to enable Websockets on your broker. The Docker Image [toke/mosquitto](https://hub.docker.com/r/toke/mosquitto) for e.g. has it already enabled by default on [port 9001](https://github.com/toke/docker-mosquitto/blob/8aa0a74b444fb2377fcd4a43ac85a257aef51176/config/conf.d/websockets.conf#L1), where the official Docker Image [eclipse-mosquitto](https://hub.docker.com/_/eclipse-mosquitto) need to be configured first.
 
-#### Publish
+    docker run -d --restart=always \
+        -e "MQTT_HOST=10.1.1.50:9001" \
+        -p 80:80 \
+        dersimn/mqtt-admin
 
-Just enter a topic and a payload and click the publish button. The payload input field can be resized vertically and has
-a built in JSON linter - a checkmark below the input field will indicate valid JSON.
+If you provide an SSL key/cert pair in `/ssl`, the Docker Image will also enable HTTPS:
 
-Every publish is saved in the history table, you can refill the input fields by clicking in history, a double click
-immediatly publishes again (not retained).
+* `/ssl/nginx.key`
+* `/ssl/nginx.crt`
 
-#### Subscribe
+Additionally you can enable client-authentification via SSL certificates, by providing:
 
-It's possible to open a unlimited number of subscriptions tabs that can contain a unlimited number of single subscriptions.
-You can color your subscriptions, but you have to select a color before you enter a topic and press enter. 
-Subscription tabs can be renamed by double-clicking on the name.
-Every subscription tab has Play/Pause/Stop buttons, pause will cache incoming messages and delay insertion into the DOM
-until you activate play again. The trash button just clears the table.
+* `/ssl/client.crt`
 
-#### Status
+In case you have revoked clients, also prodive a `/ssl/client.crl` file.
 
-The status table shows the last-received payload of the listed topics, it's meant to keep an eye on e.g. _current_ sensor
-data without being interested in previous data. 
+A nice tutorial on how to generate your own certificates, is located [here](https://jamielinux.com/docs/openssl-certificate-authority/introduction.html).
 
-#### Warnings
+    docker run -d --restart=always \
+        -v $(pwd)/ssl:/ssl:ro \
+        -e "MQTT_HOST=10.1.1.50:9001" \
+        -p 80:80 \
+        -p 443:443 \
+        dersimn/mqtt-admin
 
-* This tool is meant to be used with keyboard and mouse, I do not plan any efforts on optimizing it for touch devices.
-* Connecting to test.mosquitto.org will stress your browser (Many retained topics, big payloads, ...).
+If you want to change the default ports, specify it like this: `-p 8001:80 -p 8443:443 -e "HTTPS_REDIRECT_PORT=8443"`.
 
-#### mqtt-smarthome
+HTTPS and client-auth are optional for clients connecting via a local IP, according to [these](https://github.com/dersimn/mqtt-smarthome-webui/blob/6e419811d3bd433e5fc594e1beccaa0499fe08cf/nginx.template#L69) IP ranges. If you make port 80/443 public to the Internet you should definitely enable client-auth.
 
-mqtt-admin contains some syntactic sugar for [mqtt-smarthome](https://github.com/mqtt-smarthome/) users (special columns
-in status tab, auto-completion of // to /status/ and /set/)
+## Development
 
+Basic build:
 
-## contributing
-
-Pull Requests welcome!
-
-Dependencies are managed with [Bower](http://bower.io/), [StealJS](http://stealjs.com/) takes care of module loading, 
-the [Grunt](http://gruntjs.com/) task named "build" creates a production build in tmp dir.
-
-
-## license
-
-The MIT License (MIT)
-
-Copyright (c) Sebastian Raff <hq@ccu.io> (https://github.com/hobbyquaker)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE. 
+    npm install
+    grunt
+    docker build -t dersimn/mqtt-admin .
+    docker build -t dersimn/mqtt-admin:armhf -f Dockerfile.armhf .
+    grunt clean
